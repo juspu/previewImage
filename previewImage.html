@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>原生JS图片上传预览</title>
+
+<style>
+html, body, div, span,  p, blockquote, a, address, em, img, ol, ul, li, fieldset, form, i {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-weight: inherit;
+    font-style: inherit;
+    font-size: 100%;
+    font-family: Helvetica,Arial;
+}
+ul, ol {
+    list-style: none;
+}
+input{width:200px;height:40px;margin:10px;}
+.add-pic {
+    margin: 0 10px;
+    border-radius: 8px;
+    font-size: 17px;
+    color: #828282;
+    padding: 4px 0;
+    min-width: 290px;
+    overflow: hidden;
+}
+.J_photo_container li{float:left;}
+ .add-btn {
+    position: relative;
+    display: inline-block;
+    width: 65px;
+    height: 65px;
+    margin-right: 10px;
+    border: 2px dotted #828282;
+    border-radius: 5px;
+    vertical-align: middle;
+}
+.add-btn .plus {
+    position: absolute;
+    top: 30px;
+    left: 18px;
+    width: 29px;
+    height: 4px;
+    background: #828282;
+    border-radius: 4px;
+}
+.add-btn .plus:after {
+    content: "";
+    position: absolute;
+    top: -13px;
+    left: 12px;
+    width: 4px;
+    height: 29px;
+    background: #828282;
+    border-radius: 4px;
+}
+.add-pic .add-pic-guide {
+    display: inline-block;
+    width: 121px;
+    height: 15px;
+    background-image: url(add-pic-guide.32.png);
+    background-size: contain;
+    text-indent: -300px;
+}
+</style> 
+</head>
+<body>
+<form enctype="multipart/form-data"  method="POST">
+<div class="add-pic">
+    <ul class="J_photo_container" id="list">
+    <li id="btn" class="J_button_photo" style="position:relative; overflow:hidden;">
+        <div id="h" hide-focus="true" style="opacity:0;display: block; height: 69px;  width: 69px;  position: absolute;z-index: 2;overflow:hidden;">
+        <input name="files[]" type="file" onchange="previewImage(this, 'prvid')"  multiple="multiple" 
+         accept="image/jpeg,image/png,image/gif,image/bmp" 
+        style="display: block; background:transparent; width: 207px; height:69px;margin-left:-69px;">
+        </div>
+        <div class="add-btn" style="z-index: 1;">
+            <i class="plus"></i>
+        </div>
+        <span id="J_hintText" class="add-pic-guide" style="margin-left:5px;"></span>
+    </li>
+    </ul>
+</div>
+    <p>
+        <input type="submit" />
+        <input type="hidden" name="_hash_" value="token" />
+    </p>
+    <div id="c" style="display:none"></div>
+</form>
+
+<script type="text/javascript">
+
+function previewImage(file, prvid) {
+
+    /* file：file控件
+     * prvid: 图片预览容器
+     */
+    var tip = "Expect jpg or png or gif!"; // 设定提示信息
+    var filters = {
+        "jpeg"  : "/9j/4",
+        "gif"   : "R0lGOD",
+        "png"   : "iVBORw"
+    }
+    //prvbox.innerHTML = "";
+    if (window.FileReader) { // html5方案
+        for (var i=0, f; f = file.files[i]; i++) {
+            var fr = new FileReader();
+            fr.onload = function(e) {
+                var src = e.target.result;
+                if (!validateImg(src)) {
+                    alert(tip)
+                } else {
+                    showPrvImg(src);
+                }
+            }
+            fr.readAsDataURL(f);
+        }
+    } else { // 降级处理
+        if ( !/\.jpg$|\.png$|\.gif$/i.test(file.value) ) {
+            alert(tip);
+        } else {
+            showPrvImg(file.value);
+        }
+    }
+    document.getElementById('J_hintText').style.display='none';
+    function validateImg(data) {
+        var pos = data.indexOf(",") + 1;
+        for (var e in filters) {
+            if (data.indexOf(filters[e]) === pos) {
+                return e;
+            }
+        }
+        return null;
+    }
+
+    function showPrvImg(src) {
+        var img = document.createElement("img");
+        img.src = src;
+        img.width = 69;
+        img.height = 69;
+        var li = document.createElement('li');
+        var list = document.getElementById('list');
+        var lis = document.getElementById('btn')  ;
+        list.insertBefore(li,lis);
+        li.appendChild(img);
+
+        var hidbox = document.getElementById("c");
+        var hidden = file;
+        hidbox.appendChild(hidden);
+        var bhidden = document.createElement("input");
+        bhidden.type=hidden.type;
+        bhidden.name=hidden.name;
+        bhidden.multiple=hidden.multiple;
+        bhidden.accept=hidden.accept;
+        bhidden.onchange = hidden.onchange;
+        document.getElementById('h').appendChild(bhidden);       
+    }
+}
+</script>
+
+</body>
+
+</html>
